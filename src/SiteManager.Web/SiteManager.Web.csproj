@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SiteManager.EnumLibrary\SiteManager.EnumLibrary.csproj" />
+      <ProjectReference Include="..\SiteManager.Infrastructure\SiteManager.Infrastructure.csproj" />
+      <ProjectReference Include="..\SiteManager.Pager\SiteManager.Pager.csproj" />
+      <ProjectReference Include="..\SiteManager.Service\SiteManager.Service.csproj" />
+      <ProjectReference Include="..\SiteManager.ViewModel\SiteManager.ViewModel.csproj" />
+    </ItemGroup>
+
+</Project>
