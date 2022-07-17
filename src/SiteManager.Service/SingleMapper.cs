@@ -28,7 +28,7 @@ namespace SiteManager.Service
 
         private IMapper ConfigGlobalMapper()
         {
-            var types = Assembly.Load("Dpz.Core.Public.ViewModel").GetExportedTypes();
+            var types = Assembly.Load("SiteManager.ViewModel").GetExportedTypes();
             var config = new MapperConfigurationExpression();
 
             // 默认规则Mapper

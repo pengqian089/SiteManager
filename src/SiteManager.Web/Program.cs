@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SiteManager.Infrastructure;
+using SiteManager.Web.Library;
 using SiteManager.Web.Library.Middleware;
 
 const string corsScheme = "Open-SiteManager";
@@ -49,6 +50,9 @@ services.AddCors(options =>
             .AllowAnyHeader();
     });
 });
+
+//依赖注入
+services.AddDefaultInject(configuration).AddInject();
 #endregion
 
 #region configuration

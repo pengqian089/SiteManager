@@ -4,12 +4,12 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
     <title>@ViewData["title"] - 后台管理系统</title>
-    <link href="css/bootstrap.min.css" rel="stylesheet">
-    <link href="css/materialdesignicons.min.css" rel="stylesheet">
-    <link href="css/style.min.css" rel="stylesheet">
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="/css/style.min.css" rel="stylesheet">
 </head>
 
-<body>
+<body data-theme="dark">
 <div class="lyear-layout-web">
     <div class="lyear-layout-container">
         <partial name="_MenuPartial"/>
@@ -44,10 +44,10 @@
     </div>
 </div>
 
-<script type="text/javascript" src="js/jquery.min.js"></script>
-<script type="text/javascript" src="js/bootstrap.min.js"></script>
-<script type="text/javascript" src="js/perfect-scrollbar.min.js"></script>
-<script type="text/javascript" src="js/main.min.js"></script>
+<script type="text/javascript" src="/js/jquery.min.js"></script>
+<script type="text/javascript" src="/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/js/perfect-scrollbar.min.js"></script>
+<script type="text/javascript" src="/js/main.min.js"></script>
 @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

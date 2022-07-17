@@ -1,0 +1,54 @@
+﻿@model VmBanner
+
+<div class="container-fluid">
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Banner</h4>
+                </div>
+                <div class="card-body">
+                    <form class="form-horizontal" action="#" method="post">
+                        <input type="hidden" asp-for="Id"/>
+                        <div class="form-group">
+                            <label class="col-xs-12" asp-for="Title">标题</label>
+                            <div class="col-xs-12">
+                                <input class="form-control" asp-for="Title" placeholder="标题..">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-12" asp-for="Content">内容</label>
+                            <div class="col-xs-12">
+                                <input class="form-control" asp-for="Content" placeholder="内容..">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-xs-12" asp-for="Path">链接</label>
+                            <div class="col-xs-12">
+                                <input class="form-control" asp-for="Path" placeholder="链接..">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            @if (!string.IsNullOrEmpty(Model?.Image))
+                            {
+                                <img src="@Model.Image" alt="upload" style="max-width: 100%"/>
+                            }
+                            <label class="col-xs-12" for="example-file-input">上传图片</label>
+                            <div class="col-xs-12">
+                                <input type="file" id="example-file-input" name="Image">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-xs-12">
+                                <button class="btn btn-primary" type="submit">提交</button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
