@@ -1,6 +1,9 @@
-﻿using System.Linq;
+﻿using System;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using SiteManager.Service.ServiceComponents;
 using SiteManager.ViewModel;
@@ -11,10 +14,13 @@ namespace SiteManager.Web.Controllers;
 public class NewsController : Controller
 {
     private readonly IArticleService _articleService;
+    private readonly IWebHostEnvironment _webHostEnvironment;
 
-    public NewsController(IArticleService articleService)
+    public NewsController(IArticleService articleService,
+        IWebHostEnvironment webHostEnvironment)
     {
         _articleService = articleService;
+        _webHostEnvironment = webHostEnvironment;
     }
 
     // GET
@@ -75,5 +81,33 @@ public class NewsController : Controller
     {
         await _articleService.DeleteAsync(id);
         return Json(new ResultInfo(true));
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Upload()
+    {
+        var file = Request.Form.Files.FirstOrDefault();
+        if (file is {Length: > 0} && file.ContentType.Contains("image"))
+        {
+            var date = DateTime.Now;
+            var savePath = Path.Combine(_webHostEnvironment.WebRootPath, "article", date.ToString("yyyyMM"));
+            var fileName = Guid.NewGuid().ToString("N") + file.FileName[file.FileName.LastIndexOf('.')..];
+            if (!Directory.Exists(savePath))
+            {
+                Directory.CreateDirectory(savePath);
+            }
+
+            savePath = Path.Combine(savePath, fileName);
+            var stream = file.OpenReadStream();
+            await using var fileStream = new FileStream(savePath, FileMode.CreateNew, FileAccess.Write);
+            await stream.CopyToAsync(fileStream);
+            await fileStream.FlushAsync();
+            await fileStream.DisposeAsync();
+
+            var url = savePath[_webHostEnvironment.WebRootPath.Length..].Replace(Path.DirectorySeparatorChar, '/');
+            return Json(new { success = 1, message = "", url });
+        }
+
+        return Json(new {success = 0, message = "请选择一张图片！", url = ""});
     }
 }
