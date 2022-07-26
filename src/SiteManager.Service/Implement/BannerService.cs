@@ -36,6 +36,6 @@ public class BannerService:BasicService<Banner>,IBannerService
 
     public async Task DeleteAsync(string id)
     {
-        await Repository.DeleteAsync(id);
+        await Repository.DeleteMoreAsync(id);
     }
 }

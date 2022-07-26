@@ -8,8 +8,13 @@
                 <div class="card-header">
                     <h4>Banner列表</h4>
                 </div>
+                <div class="card-toolbar clearfix">
+                    <div class="toolbar-btn-action">
+                        <a class="btn btn-primary m-r-5" asp-action="SaveBanner"><i class="mdi mdi-plus"></i> 新增</a>
+                    </div>
+                </div>
                 <div class="card-body">
-                    <h5>响应式表格</h5>
+                    <h5>Banner</h5>
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead>
@@ -18,24 +23,41 @@
                                 <th>链接</th>
                                 <th>标题</th>
                                 <th>内容</th>
+                                <th>操作</th>
                             </tr>
                             </thead>
                             <tbody>
                             @foreach (var item in Model)
                             {
                                 <tr>
-                                    <th scope="row">@item.Image</th>
+                                    <th scope="row">
+                                        <img style="max-width: 100px" src="@item.Image" alt="banner"/> 
+                                    </th>
                                     <td>@item.Path</td>
                                     <td>@item.Title</td>
                                     <td>@item.Content</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a class="btn btn-xs btn-default" asp-action="SaveBanner" asp-route-id="@item.Id" title="编辑" data-toggle="tooltip">
+                                                <i class="mdi mdi-pencil"></i>
+                                            </a>
+                                            <a class="btn btn-xs btn-default" data-delete="@item.Id" title="删除" data-toggle="tooltip">
+                                                <i class="mdi mdi-window-close"></i>
+                                            </a>
+                                        </div>
+                                    </td>
                                 </tr>
                             }
                             </tbody>
                         </table>
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts
+{
+    <script src="/scripts/banner.js"></script>
+}

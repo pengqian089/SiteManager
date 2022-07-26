@@ -88,4 +88,8 @@
       <_ContentIncludedByDefault Remove="wwwroot\dist\js\pages\dashboard3.js" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="wwwroot\banner\202207" />
+    </ItemGroup>
+
 </Project>

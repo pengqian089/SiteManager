@@ -9,7 +9,7 @@
                     <h4>Banner</h4>
                 </div>
                 <div class="card-body">
-                    <form class="form-horizontal" action="#" method="post">
+                    <form class="form-horizontal" asp-action="SaveBanner" method="post" enctype="multipart/form-data">
                         <input type="hidden" asp-for="Id"/>
                         <div class="form-group">
                             <label class="col-xs-12" asp-for="Title">标题</label>
@@ -39,6 +39,7 @@
                                 <input type="file" id="example-file-input" name="Image">
                             </div>
                         </div>
+                        <partial name="_ErrorTipsPartial"/>
                         <div class="form-group">
                             <div class="col-xs-12">
                                 <button class="btn btn-primary" type="submit">提交</button>

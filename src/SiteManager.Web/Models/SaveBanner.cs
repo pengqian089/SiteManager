@@ -18,14 +18,8 @@ public class SaveBanner
     
     public string Content { get; set; }
 
-    public async Task<VmBanner> ToViewModelAsync(string savePath)
+    public VmBanner ToViewModel(string savePath)
     {
-        var stream = Image.OpenReadStream();
-        await using var fileStream = new FileStream(savePath, FileMode.CreateNew, FileAccess.Write);
-        await stream.CopyToAsync(fileStream);
-        await fileStream.FlushAsync();
-        await fileStream.DisposeAsync();
-
         return new VmBanner
         {
             Image = savePath,

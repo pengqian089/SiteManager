@@ -1,6 +1,9 @@
-﻿namespace SiteManager.ViewModel;
+﻿using SiteManager.Entity;
+using SiteManager.Infrastructure;
 
-public class VmBanner
+namespace SiteManager.ViewModel;
+
+public class VmBanner:IMapFrom<Banner>
 {
     public string Id { get; set; }
     

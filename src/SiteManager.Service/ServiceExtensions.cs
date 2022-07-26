@@ -109,7 +109,7 @@ namespace SiteManager.Service
             return new PagedList<TModel>(data, pageIndex, pageSize, totalItemCount);
         }
 
-        public static async Task DeleteAsync<T>(this IRepository<T> repository, params string[] id)
+        public static async Task DeleteMoreAsync<T>(this IRepository<T> repository, params string[] id)
             where T : BaseEntity, new()
         {
             var ids = id

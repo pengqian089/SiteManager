@@ -48,31 +48,71 @@ public class MainController : Controller
     [HttpPost]
     public async Task<IActionResult> SaveBanner(SaveBanner banner)
     {
-        var date = DateTime.Now;
-        var savePath = Path.Combine(_webHostEnvironment.WebRootPath, "banner", date.ToString("yyyyMM"));
-        var fileName = Guid.NewGuid().ToString("N") + banner.Image.FileName[banner.Image.FileName.LastIndexOf('.')..];
-        if (!Directory.Exists(savePath))
+
+        async Task<string> GetSavePath()
         {
-            Directory.CreateDirectory(savePath);
+            var date = DateTime.Now;
+            var savePath = Path.Combine(_webHostEnvironment.WebRootPath, "banner", date.ToString("yyyyMM"));
+            var fileName = Guid.NewGuid().ToString("N") + banner.Image.FileName[banner.Image.FileName.LastIndexOf('.')..];
+            if (!Directory.Exists(savePath))
+            {
+                Directory.CreateDirectory(savePath);
+            }
+            savePath = Path.Combine(savePath, fileName);
+            var stream = banner.Image.OpenReadStream();
+            await using var fileStream = new FileStream(savePath, FileMode.CreateNew, FileAccess.Write);
+            await stream.CopyToAsync(fileStream);
+            await fileStream.FlushAsync();
+            await fileStream.DisposeAsync();
+
+            return savePath[_webHostEnvironment.WebRootPath.Length..].Replace(Path.DirectorySeparatorChar,'/');
         }
-
-        savePath = Path.Combine(savePath, fileName);
-
+        
+        // add
         if (string.IsNullOrEmpty(banner.Id))
         {
-            if (banner.Image is {Length: > 0} && banner.Image.ContentType.Contains("image"))
-            {
-                await _bannerService.CreateBannerAsync(await banner.ToViewModelAsync(savePath));
-            }
-            else
+            if (banner.Image is not {Length: > 0} || !banner.Image.ContentType.Contains("image"))
             {
                 TempData["Message"] = "请选择图片";
-                return RedirectToAction("SaveBanner",
-                    string.IsNullOrEmpty(banner.Id) ? null : new {id = banner.Id});
+                return RedirectToAction("SaveBanner", string.IsNullOrEmpty(banner.Id) ? null : new {id = banner.Id});
             }
+            
+            
+            await _bannerService.CreateBannerAsync(banner.ToViewModel(await GetSavePath()));
+            return RedirectToAction("Index");
         }
+        
+        //edit
+        var editBanner = await _bannerService.GetAsync(banner.Id);
+        if(editBanner == null) return RedirectToAction("Index");
+        var vm = banner.ToViewModel(banner.Image == null ? editBanner.Image : await GetSavePath());
+        if (banner.Image != null)
+        {
+            DeletePicture(editBanner.Image);
+        }
+        await _bannerService.UpdateBannerAsync(vm);
+        return RedirectToAction("Index");
+    }
 
-        TempData["Message"] = "请选择图片";
-        return RedirectToAction("SaveBanner", string.IsNullOrEmpty(banner.Id) ? null : new {id = banner.Id});
+    [HttpPost]
+    public async Task<IActionResult> Delete(string id)
+    {
+        var banner = await _bannerService.GetAsync(id);
+        if(banner == null)return Json(new ResultInfo("not found"));
+
+        DeletePicture(banner.Image);
+        await _bannerService.DeleteAsync(id);
+        return Json(new ResultInfo(true));
+    }
+
+    private void DeletePicture(string image)
+    {
+        var url = image.Replace('/', Path.DirectorySeparatorChar);
+        url = url.StartsWith(Path.DirectorySeparatorChar) ? url[1..] : url;
+        var path = Path.Combine(_webHostEnvironment.WebRootPath, url);
+        if (System.IO.File.Exists(path))
+        {
+            System.IO.File.Delete(path);
+        }
     }
 }
