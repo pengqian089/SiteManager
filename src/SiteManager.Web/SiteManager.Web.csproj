@@ -90,6 +90,7 @@
 
     <ItemGroup>
       <Folder Include="wwwroot\banner\202207" />
+      <Folder Include="wwwroot\honorary\202207" />
     </ItemGroup>
 
 </Project>

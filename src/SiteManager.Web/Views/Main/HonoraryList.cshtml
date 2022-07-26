@@ -1,28 +1,25 @@
-﻿@model IList<VmBanner>
-
+﻿@model System.Collections.Generic.IList<SiteManager.ViewModel.VmHonorary>
 
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
-                    <h4>Banner列表</h4>
+                    <h4>荣誉资质</h4>
                 </div>
                 <div class="card-toolbar clearfix">
                     <div class="toolbar-btn-action">
-                        <a class="btn btn-primary m-r-5" asp-action="SaveBanner"><i class="mdi mdi-plus"></i> 新增</a>
+                        <a class="btn btn-primary m-r-5" asp-action="AddHonorary"><i class="mdi mdi-plus"></i> 新增</a>
                     </div>
                 </div>
                 <div class="card-body">
-                    <h5>Banner</h5>
+                    <h5>荣誉资质</h5>
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead>
                             <tr>
                                 <th>图片</th>
-                                <th>链接</th>
-                                <th>标题</th>
-                                <th>内容</th>
+                                <th>描述</th>
                                 <th>操作</th>
                             </tr>
                             </thead>
@@ -31,14 +28,14 @@
                             {
                                 <tr>
                                     <td>
-                                        <img style="max-width: 100px" src="@item.Image" alt="banner"/> 
+                                        <img style="max-width: 100px" src="@item.Image" alt="banner"/>
                                     </td>
-                                    <td>@item.Path</td>
-                                    <td>@item.Title</td>
-                                    <td>@item.Content</td>
+                                    <td>
+                                        @item.Title
+                                    </td>
                                     <td>
                                         <div class="btn-group">
-                                            <a class="btn btn-xs btn-default" asp-action="SaveBanner" asp-route-id="@item.Id" title="编辑" data-toggle="tooltip">
+                                            <a class="btn btn-xs btn-default" asp-action="AddHonorary" asp-route-id="@item.Id" title="编辑" data-toggle="tooltip">
                                                 <i class="mdi mdi-pencil"></i>
                                             </a>
                                             <a class="btn btn-xs btn-default" data-delete="@item.Id" title="删除" data-toggle="tooltip">
@@ -59,5 +56,5 @@
 
 @section Scripts
 {
-    <script src="/scripts/banner.js"></script>
+    <script src="/scripts/honorary.js"></script>
 }

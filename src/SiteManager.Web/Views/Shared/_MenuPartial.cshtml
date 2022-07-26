@@ -1,10 +1,13 @@
 ﻿@{
     string OpenMainMenu()
     {
-        return ViewBag.Menu == MenuItems.Banner ? "active open" : "";
+        return
+            ViewBag.Menu == MenuItems.Banner
+            || ViewBag.Menu == MenuItems.Honorary
+                ? "active open" : "";
     }
-    
-    
+
+
 }
 
 <!--左侧导航-->
@@ -18,7 +21,10 @@
                     <a href="javascript:void(0)"><i class="mdi mdi-palette"></i>首页管理</a>
                     <ul class="nav nav-subnav">
                         <li class="@(ViewBag.Menu == MenuItems.Banner ? "active" : "")">
-                            <a asp-action="Index" asp-controller="Main" >Banner管理</a>
+                            <a asp-action="Index" asp-controller="Main">Banner管理</a>
+                        </li>
+                        <li class="@(ViewBag.Menu == MenuItems.Honorary ? "active" : "")">
+                            <a asp-action="HonoraryList" asp-controller="Main">荣誉资质</a>
                         </li>
                     </ul>
                 </li>

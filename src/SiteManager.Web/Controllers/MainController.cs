@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SiteManager.Service.ServiceComponents;
 using SiteManager.ViewModel;
@@ -13,12 +14,15 @@ namespace SiteManager.Web.Controllers;
 public class MainController : Controller
 {
     private readonly IBannerService _bannerService;
+    private readonly IHonoraryService _honoraryService;
     private readonly IWebHostEnvironment _webHostEnvironment;
 
     public MainController(IBannerService bannerService,
+        IHonoraryService honoraryService,
         IWebHostEnvironment webHostEnvironment)
     {
         _bannerService = bannerService;
+        _honoraryService = honoraryService;
         _webHostEnvironment = webHostEnvironment;
     }
 
@@ -45,29 +49,31 @@ public class MainController : Controller
         return View(banner);
     }
 
+    [NonAction]
+    async Task<string> GetSavePathAsync(IFormFile image, string name)
+    {
+        var date = DateTime.Now;
+        var savePath = Path.Combine(_webHostEnvironment.WebRootPath, name, date.ToString("yyyyMM"));
+        var fileName = Guid.NewGuid().ToString("N") + image.FileName[image.FileName.LastIndexOf('.')..];
+        if (!Directory.Exists(savePath))
+        {
+            Directory.CreateDirectory(savePath);
+        }
+
+        savePath = Path.Combine(savePath, fileName);
+        var stream = image.OpenReadStream();
+        await using var fileStream = new FileStream(savePath, FileMode.CreateNew, FileAccess.Write);
+        await stream.CopyToAsync(fileStream);
+        await fileStream.FlushAsync();
+        await fileStream.DisposeAsync();
+
+        return savePath[_webHostEnvironment.WebRootPath.Length..].Replace(Path.DirectorySeparatorChar, '/');
+    }
+
+
     [HttpPost]
     public async Task<IActionResult> SaveBanner(SaveBanner banner)
     {
-
-        async Task<string> GetSavePath()
-        {
-            var date = DateTime.Now;
-            var savePath = Path.Combine(_webHostEnvironment.WebRootPath, "banner", date.ToString("yyyyMM"));
-            var fileName = Guid.NewGuid().ToString("N") + banner.Image.FileName[banner.Image.FileName.LastIndexOf('.')..];
-            if (!Directory.Exists(savePath))
-            {
-                Directory.CreateDirectory(savePath);
-            }
-            savePath = Path.Combine(savePath, fileName);
-            var stream = banner.Image.OpenReadStream();
-            await using var fileStream = new FileStream(savePath, FileMode.CreateNew, FileAccess.Write);
-            await stream.CopyToAsync(fileStream);
-            await fileStream.FlushAsync();
-            await fileStream.DisposeAsync();
-
-            return savePath[_webHostEnvironment.WebRootPath.Length..].Replace(Path.DirectorySeparatorChar,'/');
-        }
-        
         // add
         if (string.IsNullOrEmpty(banner.Id))
         {
@@ -76,20 +82,23 @@ public class MainController : Controller
                 TempData["Message"] = "请选择图片";
                 return RedirectToAction("SaveBanner", string.IsNullOrEmpty(banner.Id) ? null : new {id = banner.Id});
             }
-            
-            
-            await _bannerService.CreateBannerAsync(banner.ToViewModel(await GetSavePath()));
+
+
+            await _bannerService.CreateBannerAsync(banner.ToViewModel(await GetSavePathAsync(banner.Image, "banner")));
             return RedirectToAction("Index");
         }
-        
+
         //edit
         var editBanner = await _bannerService.GetAsync(banner.Id);
-        if(editBanner == null) return RedirectToAction("Index");
-        var vm = banner.ToViewModel(banner.Image == null ? editBanner.Image : await GetSavePath());
+        if (editBanner == null) return RedirectToAction("Index");
+        var vm = banner.ToViewModel(banner.Image == null
+            ? editBanner.Image
+            : await GetSavePathAsync(banner.Image, "banner"));
         if (banner.Image != null)
         {
             DeletePicture(editBanner.Image);
         }
+
         await _bannerService.UpdateBannerAsync(vm);
         return RedirectToAction("Index");
     }
@@ -98,7 +107,7 @@ public class MainController : Controller
     public async Task<IActionResult> Delete(string id)
     {
         var banner = await _bannerService.GetAsync(id);
-        if(banner == null)return Json(new ResultInfo("not found"));
+        if (banner == null) return Json(new ResultInfo("not found"));
 
         DeletePicture(banner.Image);
         await _bannerService.DeleteAsync(id);
@@ -114,5 +123,67 @@ public class MainController : Controller
         {
             System.IO.File.Delete(path);
         }
+    }
+
+    public async Task<IActionResult> HonoraryList()
+    {
+        ViewBag.Menu = MenuItems.Honorary;
+        var list = await _honoraryService.GetListAsync();
+        return View(list);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> AddHonorary(string id = "")
+    {
+        VmHonorary model = null;
+        ViewBag.Menu = MenuItems.Honorary;
+        if (!string.IsNullOrEmpty(id))
+        {
+            model = await _honoraryService.GetAsync(id);
+        }
+        return View(model);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AddHonorary(IFormFile image, string title, string id = null)
+    {
+        //add
+        if (string.IsNullOrEmpty(id))
+        {
+            if (image is not {Length: > 0} || !image.ContentType.Contains("image"))
+            {
+                TempData["Message"] = "请选择图片";
+                return RedirectToAction("AddHonorary");
+            }
+
+            var path = await GetSavePathAsync(image, "honorary");
+            await _honoraryService.AddAsync(path, title);
+            return RedirectToAction("HonoraryList");
+        }
+
+        //edit
+        var editHonorary = await _honoraryService.GetAsync(id);
+        if (editHonorary == null) return RedirectToAction("Index");
+
+        if (image != null)
+        {
+            DeletePicture(editHonorary.Image);
+            editHonorary.Image = await GetSavePathAsync(image, "honorary");
+        }
+
+        editHonorary.Title = title;
+        await _honoraryService.UpdateAsync(editHonorary);
+        return RedirectToAction("HonoraryList");
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteHonorary(string id)
+    {
+        var vm = await _honoraryService.GetAsync(id);
+        if (vm == null) return Json(new ResultInfo("not found"));
+
+        DeletePicture(vm.Image);
+        await _honoraryService.DeleteAsync(id);
+        return Json(new ResultInfo(true));
     }
 }
